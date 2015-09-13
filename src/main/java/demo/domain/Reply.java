@@ -17,7 +17,6 @@ public class Reply {
 	private String comment;
 
 	public Reply() {
-
 	}
 
 	public Reply(String author, String comment) {

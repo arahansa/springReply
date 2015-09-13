@@ -23,10 +23,9 @@ public class RestReplyController {
 	}
 	
 	// Create
-	@RequestMapping(method=RequestMethod.POST, headers={"Content-type=application/json"})
+	@RequestMapping(method=RequestMethod.POST)
 	public Reply postReply(@RequestBody Reply reply){
 		repoReply.save(reply);
-		System.out.println(reply);
 		return reply;
 	}
 	
@@ -38,7 +37,7 @@ public class RestReplyController {
 	}
 	
 	// Update
-	@RequestMapping(value="/{id}", method=RequestMethod.PUT, headers={"Content-type=application/json"})
+	@RequestMapping(value="/{id}", method=RequestMethod.PUT)
 	public Reply updateReply(@PathVariable Long id, @RequestBody Reply reply){
 		repoReply.updateReply(reply.getComment(), id);
 		return reply;
@@ -50,7 +49,4 @@ public class RestReplyController {
 		repoReply.delete(id);
 		return "DELETE";
 	}
-	
-
-	
 }

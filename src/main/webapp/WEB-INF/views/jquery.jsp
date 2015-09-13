@@ -19,10 +19,13 @@
 <hr>
 <h4>댓글 내용</h4>
 <div id="replyContent">
-	<div class="reply"> 글쓴이 : 하하하 </div>
+	<div class="reply"> 
+		<span class="author">글쓴이 :</span>
+		<span class="comment">하하하</span>
+		<button>수정</button>
+		<button>삭제</button>
+	</div>
 </div>
-
-
 <script src="/js/lib/jquery-1.11.3.min.js"></script>
 
 <script>
