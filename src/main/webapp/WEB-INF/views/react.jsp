@@ -24,16 +24,50 @@ var replies = [
 	            {"replyId": 1, "author": "아라한사22", "comment": "하하하22"}
 	          ];
 
+
+var ReplyForm = React.createClass({
+	handleReplySubmit: function(){
+		var reply = {author: this.state.author, comment: this.state.comment};
+		this.props.onReplySubmit(reply);
+		this.setState({author:'', comment:''})
+	},
+	getInitialState: function() {
+    	return {author:'', comment:''};
+  	},
+	onChangeAuthor: function(e){
+		/* 유튜브 영상에서 봤던 방식. ref 가 아니라 onChange 로 걸어주고 있더라?! */ 
+		this.setState({author:e.target.value})
+	},
+	onChangeComment: function(e){
+		this.setState({comment:e.target.value})
+	},
+	render: function(){
+		return(
+			<div>
+			 <h4>comment input 입력</h4>
+			 nick : <input type="text" name="author" value={this.state.author} onChange={this.onChangeAuthor} /> ,  
+	         comment : <input type="text" name="comment" value={this.state.comment} onChange={this.onChangeComment}  /> 
+			 <button onClick={this.handleReplySubmit}>전송!</button> 
+			</div> 
+		);
+	}
+}); 
+
+
 var Reply = React.createClass({
 	makeFormView: function(){
 		this.setState({isModifying: true});
 	},
-	cancelUpdate: function(){
+	updateComment: function(){
 		this.setState({isModifying: false});
+		this.props.reply.comment = React.findDOMNode(this.refs.comment).value;
+		this.props.update(this.props.reply);
+	},
+	cancelUpdate: function(){
+		this.setState({isModifying: false});	
 	},
 	deleteReply: function(){
-		/*  TODO */
-		this.props.del();
+		this.props.del(this.props.reply);
 	},
 	getInitialState: function() {
     	return {isModifying: false};
@@ -43,8 +77,8 @@ var Reply = React.createClass({
 			return(
 				<div className="reply">
 					<span className="author">{this.props.reply.author} : </span>
-					<textarea id="updatedComment" defaultValue={this.props.reply.comment}></textarea>
-					<button>수정!</button>
+					<textarea id="updatedComment" defaultValue={this.props.reply.comment} ref="comment"></textarea>
+					<button onClick={this.updateComment}>수정!</button>
 					<button onClick={this.cancelUpdate}>취소</button>
 				</div>
 			)	
@@ -62,15 +96,12 @@ var Reply = React.createClass({
 });
 
 var ReplyList = React.createClass({
-	deleteReply: function(e){
-		console.log("여기는 리플라이 리스트 !");
-		this.props.del();
-	},
 	render: function(){
 		var del = this.props.del;
+		var update = this.props.update;
 		var replyNodes = this.props.replies.map(function (reply) {
 			return (
-        		<Reply key={reply.id} reply={reply} del={del}></Reply>
+        		<Reply key={reply.id} reply={reply} del={del} update={update}></Reply>
       		);
     	});
 		return(
@@ -81,34 +112,6 @@ var ReplyList = React.createClass({
 	}
 });
 
-var ReplyForm = React.createClass({
-	handleReplySubmit: function(e){
-		e.preventDefault();
-		
-		var reply = {author: this.state.author, comment: this.state.comment};
-		this.props.onReplySubmit(reply);
-		this.setState({author:'', comment:''})
-	},
-	getInitialState: function() {
-    	return {author:'', comment:''};
-  	},
-	onChangeAuthor: function(e){
-		this.setState({author:e.target.value})
-	},
-	onChangeComment: function(e){
-		this.setState({comment:e.target.value})
-	},
-	render: function(){
-		return(
-			<div>
-			 <h4>comment input 입력</h4>
-			 nick : <input type="text" name="author" value={this.state.author} onChange={this.onChangeAuthor} /> ,  
-	         comment : <input type="text" name="comment" value={this.state.comment} onChange={this.onChangeComment}  /> 
-			 <button onClick={this.handleReplySubmit}>전송!</button> 
-			</div> 
-		);
-	}
-}); 
 
 var ReplyBox  = React.createClass({
 	loadRepliesFromServer: function(){
@@ -147,37 +150,50 @@ var ReplyBox  = React.createClass({
       		}.bind(this)
     	});
   	},
-	deleteReply: function(){
-		console.log("여기는 리플라이 박스! 삭제 호출");
-		/* var index = this.state.replies.indexOf(this.props.reply); 
-		
+	updateReply: function(reply){
+		/* 궁금한 것! props로 전해준 reply 가 알아서 this.state.replies에 잘 반영이 되어있다! */
+		console.log("받은 댓글", reply );
+		var $this = this;
 		$.ajax({
-		    url: '/comment/'+this.props.reply.id,
+            type : 'PUT',
+            url : '/comment/'+reply.id,
+            contentType: 'application/json',
+            data : JSON.stringify( reply ),
+            dataType: 'json',
+            success : function(result) {
+            	$this.setState( $this.state.replies );
+            },error : function(xhr, status, error){
+                console.log("code:"+xhr.status+"\n"+"message:"+xhr.responseText+"\n"+"error:"+error);
+            }
+        });
+	},
+	deleteReply: function(reply){
+		var index = this.state.replies.indexOf(reply); 
+		var $this = this;	
+		$.ajax({
+		    url: '/comment/'+reply.id,
 		    type: 'DELETE',
 		    success: function(result) {
 		        if(result == 'DELETE'){
-		        	console.log("삭제 성공");
+		        	$this.state.replies.splice(index ,1);
+					$this.setState($this.state.replies);
 		        }
 		    },error : function(xhr, status, error){
-                console.log("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                console.log("code:"+xhr.status+"\n"+"message:"+xhr.responseText+"\n"+"error:"+error);
             }
-		});*/
+		});
 	},
 	render: function(){
 		return (
 			<div className="replyBox">
 				<ReplyForm onReplySubmit={this.handleReplySubmit}/>
 				<hr/>
-				<ReplyList replies={this.state.replies} del={this.deleteReply} />
+				<ReplyList replies={this.state.replies} del={this.deleteReply} update={this.updateReply} />
 			</div>
 		)
 	}
 });
-
-
-  React.render(<ReplyBox/>, document.getElementById('replyBox') );
-  
-		
+  React.render(<ReplyBox/>, document.getElementById('replyBox') );	
 </script>
 <!-- 
  
