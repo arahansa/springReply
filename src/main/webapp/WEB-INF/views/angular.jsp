@@ -44,8 +44,9 @@ app.controller('replyController', function ($scope, $http) {
 	function submit(reply){
 		var req = { method: "POST", url: '/comment', data: reply };
 		$http(req)
-		.success(function(data) { console.log(data); $scope.replies.push(data) })
+		.success(function(data) { console.log(data); $scope.replies.push(data); reply.author=""; reply.comment=""; })
 		.error(function() { alert("댓글 쓰는데 에러 발생"); });
+		
 	}
 })
 .directive('myReply', function($compile, $http){
@@ -97,7 +98,7 @@ app.controller('replyController', function ($scope, $http) {
 			};
 			scope.cancelUpdate = function cancelUpdate( reply ){
 				reply.comment = scope.tempContent;
-				makeOrigianlView(reply, event );
+				makeOrigianlView( reply, event );
 			};
 			function makeOrigianlView( reply, event ){
 				var replyDiv = $(event.currentTarget).closest("div.reply");
