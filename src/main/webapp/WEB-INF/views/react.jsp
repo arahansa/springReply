@@ -5,10 +5,10 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Happy coding : React</title>
-<script src="/js/lib/react.js"></script>
-<script src="/js/lib/JSXTransformer.js"></script>
-<script src="/js/lib/jquery-1.11.3.min.js"></script>
-<script src="/js/lib/marked.min.js"></script>
+	<script src="/node_modules/react/dist/react.js"></script>
+	<script src="/node_modules/babel-core/browser.js"></script>
+	<script src="/js/lib/jquery-1.11.3.min.js"></script>
+	<script src="/js/lib/marked.min.js"></script>
 <style>
 	span.originalView{ display: inline;}
 	div.reply { margin-bottom: 10px;}
@@ -18,7 +18,9 @@
 <h1>hello react</h1>
 <div id="replyBox"></div>
 
-<script type="text/jsx">
+<script type="text/babel">
+
+
 var replies = [
 	          	{"replyId": 0, "author": "아라한사", "comment": "하하하"},
 	            {"replyId": 1, "author": "아라한사22", "comment": "하하하22"}
@@ -174,10 +176,8 @@ var ReplyBox  = React.createClass({
 		    url: '/comment/'+reply.id,
 		    type: 'DELETE',
 		    success: function(result) {
-		        if(result == 'DELETE'){
-		        	$this.state.replies.splice(index ,1);
-					$this.setState($this.state.replies);
-		        }
+		        $this.state.replies.splice(index ,1);
+				$this.setState($this.state.replies);
 		    },error : function(xhr, status, error){
                 console.log("code:"+xhr.status+"\n"+"message:"+xhr.responseText+"\n"+"error:"+error);
             }

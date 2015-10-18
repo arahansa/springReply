@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import demo.domain.Reply;
@@ -23,6 +24,7 @@ public class RestReplyController {
 	
 	// List
 	@RequestMapping(method=RequestMethod.GET)
+	@ResponseStatus(HttpStatus.OK)
 	public List<Reply> replyList(){
 		List<Reply> replies = repoReply.findAll();
 		return replies;
@@ -30,9 +32,9 @@ public class RestReplyController {
 	
 	// Create
 	@RequestMapping(method=RequestMethod.POST)
-	public Reply postReply(@RequestBody Reply reply){
-		repoReply.save(reply);
-		return reply;
+	public ResponseEntity postReply(@RequestBody Reply reply){
+		Reply createdReply = repoReply.save(reply);
+		return new ResponseEntity<>(createdReply, HttpStatus.CREATED);
 	}
 	
 	// Read
@@ -45,17 +47,14 @@ public class RestReplyController {
 	// Update
 	@RequestMapping(value="/{id}", method=RequestMethod.PUT)
 	public ResponseEntity<Reply> updateReply(@PathVariable Long id, @RequestBody Reply reply){
-	    int updateStatus = repoReply.updateReply(reply.getComment(), id);
-	    if (updateStatus == 1){
-	        return new ResponseEntity<>(reply, HttpStatus.OK);
-	    }
-	    return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);      
+	    repoReply.updateReply(reply.getComment(), id);
+	    return new ResponseEntity<>(reply, HttpStatus.OK);   
 	}
 	
 	// Delete
 	@RequestMapping(value="/{id}", method=RequestMethod.DELETE)
-	public String deleteReply(@PathVariable Long id){
+	public ResponseEntity deleteReply(@PathVariable Long id){
 		repoReply.delete(id);
-		return "DELETE";
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 }
