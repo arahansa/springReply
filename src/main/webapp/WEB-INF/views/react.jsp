@@ -188,7 +188,7 @@ var ReplyBox  = React.createClass({
 			<div className="replyBox">
 				<ReplyForm onReplySubmit={this.handleReplySubmit}/>
 				<hr/>
-				<ReplyList replies={this.state.replies} del={this.deleteReply} update={this.updateReply} />
+				<ReplyList  del={this.deleteReply} update={this.updateReply} />
 			</div>
 		)
 	}
