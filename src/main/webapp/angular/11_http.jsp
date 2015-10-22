@@ -8,7 +8,7 @@
 	div.reply { margin-bottom: 10px; }
 </style>
 </head>
-<body ng-controller="replyController">
+<body ng-controller="replyController"  ng-init="init(1)">
 <h1>Hello Angular</h1>
 
 <h4>댓글 입력</h4>
@@ -18,7 +18,7 @@
 <hr>
 <h4>댓글 내용 ({{replies.length }} 개의 댓글)</h4>
 <div id="replyContent">
-	<my-reply ng-repeat="reply in replies|orderBy:'-replyId'"></my-reply>
+	<my-reply ng-repeat="reply in replies|orderBy:'-id'"></my-reply>
 	
 </div>
 
@@ -31,34 +31,47 @@ var app = angular.module('testApp', []);
 
 app.controller('replyController', function ($scope, $http) {
 	$scope.replyCount=1;
-	$scope.replies = [
-	                  {"replyId": 0, "author": "아라한사", "comment": "하하하"},
-	                  {"replyId": 1, "author": "아라한사22", "comment": "하하하22"}
-	                  ];
+	$scope.replies = [];
 	
 	$scope.del = del;
 	$scope.submit = submit;
+	$scope.init = init;
 	
+	function init(pagenumber){
+		console.log(pagenumber+"의 글을 읽습니다.!");
+		var req = {method: "GET", url: '/comment'};
+		$http(req)
+			.success(function(data) { $scope.replies=data; })
+			.error(function() { alert("댓글 읽어오는데 에러 발생"); });
+	}
 	
 	function submit(){
-		$scope.replyCount++;
 		var reply = {
-				replyId : $scope.replyCount,
 				author : $("#author").val(),
 				comment : $("#comment").val()
 		};
-		$scope.replies.push(reply);
+		var req = { method: "POST", url: '/comment', data: reply };
+		$http(req)
+		.success(function(data) { console.log(data); $scope.replies.push(data);})
+		.error(function() { alert("댓글 쓰는데 에러 발생"); });
+		
+		// reply.author=""; reply.comment=""; 
 		$("#author").val("");
 		$("#comment").val("");
 	}
 	
 	function del( reply ){
-		var index = $scope.replies.indexOf(reply);
-		$scope.replies.splice(index ,1);
+		var req = {method: "DELETE", url: '/comment/'+reply.id};
+		$http(req)
+		.success(function(data) { 
+			var index = $scope.replies.indexOf(reply);
+			$scope.replies.splice(index ,1);
+		})
+		.error(function() { alert("댓글 삭제시 에러 발생"); });
 	}
 });
 
-app.directive('myReply', function($compile){
+app.directive('myReply', function($compile, $http){
 	return {
 		restrict: 'E', 
 		replace: true,
@@ -84,8 +97,12 @@ app.directive('myReply', function($compile){
 			};
 			
 			scope.update = function( reply , event ){
-				var replyDiv = $(event.currentTarget).closest("div.reply");
-				makeOrigianlView( replyDiv );
+				var req = { method: "PUT", url: '/comment/'+reply.id, data: reply };
+				$http(req)
+				.success(function(data) { 
+					var replyDiv = $(event.currentTarget).closest("div.reply");
+					makeOrigianlView( replyDiv ); 
+				}).error(function() { alert("댓글 수정 실패"); });
 			}
 			
 			scope.cancelUpdate = function( reply ){
@@ -94,7 +111,7 @@ app.directive('myReply', function($compile){
 				makeOrigianlView( replyDiv ); 
 			}
 			
-			function makeOrigianlView(  replyDiv ){
+			function makeOrigianlView( replyDiv ){
 				$(replyDiv).removeAttr("status");
 				$(replyDiv).find("button").remove();
 				$(replyDiv).find("span.author").next().replaceWith(
@@ -103,7 +120,6 @@ app.directive('myReply', function($compile){
 						' <button ng-click="modifyForm()">수정</button>'+  
 						' <button ng-click="del(reply)">삭제</button>')(scope));
 			}
-			
 		}
 	}
 });

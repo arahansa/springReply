@@ -85,12 +85,11 @@ app.directive('myReply', function($compile){
 				console.log(" 수정 클릭 ");
 			}
 			scope.cancelUpdate = function( reply ){
-				console.log(" 취소 !");
 				reply.comment = scope.tempContent;
-				makeOrigianlView( reply, event ); 
-			}
-			function makeOrigianlView( reply, event ){
 				var replyDiv = $(event.currentTarget).closest("div.reply");
+				makeOrigianlView( replyDiv  ); 
+			}
+			function makeOrigianlView( replyDiv ){
 				$(replyDiv).removeAttr("status");
 				$(replyDiv).find("button").remove();
 				$(replyDiv).find("span.author").next().replaceWith(
