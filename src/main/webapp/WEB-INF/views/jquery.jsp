@@ -126,11 +126,9 @@
 		    url: '/comment/'+replyId,
 		    type: 'DELETE',
 		    success: function(result) {
-		        if(result == 'DELETE'){
-		        	console.log("삭제 성공");
-		        	$(obj).parent().remove();
-		        }
-		    },error : function(xhr, status, error){
+		        console.log("삭제 성공");
+		        $(obj).parent().remove();
+		    },error : function(request, status, error){
                 console.log("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
             }
 		});

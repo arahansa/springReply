@@ -72,10 +72,8 @@ app.controller('replyController', function ($scope, $http) {
 				var req = {method: "DELETE", url: '/comment/'+reply.id};
 				$http(req)
 				.success(function(data) { 
-					if(data=="DELETE"){
-						var index = scope.replies.indexOf(reply);
-						scope.replies.splice(index ,1);
-					}
+					var index = scope.replies.indexOf(reply);
+					scope.replies.splice(index ,1);
 				})
 				.error(function() { alert("댓글 삭제시 에러 발생"); });
 			};
