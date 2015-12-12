@@ -18,17 +18,75 @@
 </c:if>
 
 <div id="fb-root"></div>
-<script src="//connect.facebook.net/en_US/all.js"></script>
+<script src="/js/lib/jquery-1.11.3.min.js"></script>
+<script src="http://connect.facebook.net/en_US/all.js"></script>
+<fb:login-button autologoutlink="true" onlogin="OnRequestPermission();" scope="publish_actions">
+</fb:login-button>
 <script>
-  FB.init({
+FB.init({
     appId  : '539303639551098',
     status : true, // check login status
     cookie : true, // enable cookies to allow the server to access the session
     xfbml  : true, // parse XFBML
-    channelUrl : 'http://WWW.MYDOMAIN.COM/channel.html', // channel.html file
     oauth  : true // enable OAuth 2.0
   });
 </script>
+<button onclick="loginCheck()">로그인체크</button>
+<script>
+function loginCheck(){
+	FB.getLoginStatus(function(response) {
+		 if (response.session) {
+		   console.log("로그인중");
+		 } else {
+			 console.log("로그아웃 중");
+		 }
+		});
+}
+</script>
+<button onclick="login()">로그인</button>
+<script>
+
+function login(){
+	FB.login(function(response) {
+		 if (response.session) {
+		   console.log(response.session);
+		 } else {
+			 console.log(response.session);
+		 }
+		}, {scope: 'publish_actions'});
+}
+</script>
+<br>
+<button name="my_full_name" onclick="ShowMyName()" value="My Name" >my name</button>
+<script language="javascript" type="text/javascript">
+function ShowMyName() {
+        FB.api("/me",
+                function (response) {
+        			console.log( response );
+                    alert('Name is ' + response.name);
+                });
+         
+    }
+</script>
+
+<button onclick="postFacebook()">글쓰기</button>
+<script>
+function postFacebook(){
+	var message_str= '페이스북 글쓰기 연습';
+	FB.api('/me/feed', 'post', { message: message_str}, function(response) {
+	  if (!response || response.error) {
+		  console.log(response);
+	    alert('발행 못함');
+	  } else {
+	    alert("메시지 성공적");
+	  }
+	});
+}
+</script>
+
+
+
+
 
 </body>
 </html>
